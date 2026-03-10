@@ -142,13 +142,16 @@ function renderCharts(d) {
 async function loadDashboard() {
     const d = await api('dashboard');
     const wrap = document.getElementById('dashboardCards');
-    wrap.innerHTML = d.by_stage.map(s => `
+    wrap.innerHTML = d.by_stage.map(s => {
+        const stageColor = s.color || 'var(--accent)';
+        return `
         <div class="dash-card">
-            <div class="label">${s.name}</div>
-            <div class="value">${s.count}</div>
+            <div class="label" style="color:${stageColor}">${s.name}</div>
+            <div class="value" style="color:${stageColor}">${s.count}</div>
             <small style="color:var(--text-muted)">${Number(s.total_value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</small>
         </div>
-    `).join('') + `
+    `;
+    }).join('') + `
         <div class="dash-card">
             <div class="label">Pipeline total</div>
             <div class="value highlight">${Number(d.pipeline_value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</div>
