@@ -285,6 +285,10 @@
         .opp-detail-grid .opp-detail-v { font-weight: 500; word-break: break-word; }
         .opp-detail-desc { background: var(--bg-dark); border-radius: var(--radius); padding: 0.9rem 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text); border: 1px solid var(--border); }
         .opp-detail-value { font-size: 1.1rem; font-weight: 700; color: var(--success); }
+        .opp-detail-prob-wrap { display: flex; align-items: center; gap: 0.75rem; }
+        .opp-detail-prob-bar-wrap { flex: 1; height: 10px; background: var(--bg-hover); border-radius: 999px; overflow: hidden; }
+        .opp-detail-prob-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ef4444 0%, #f59e0b 40%, #10b981 100%); transition: width 0.35s ease; min-width: 2px; }
+        .opp-detail-prob-pct { font-weight: 700; font-size: 0.95rem; min-width: 2.5rem; text-align: right; }
         .opp-detail-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
         .detail-grid {
             display: grid;
@@ -1273,7 +1277,13 @@
                     <div class="opp-detail-section-title">Económico</div>
                     <div class="opp-detail-grid">
                         <span class="opp-detail-k">Valor estimado</span><span class="opp-detail-v opp-detail-value">${valueStr}</span>
-                        <span class="opp-detail-k">Probabilidad</span><span class="opp-detail-v">${o.probability != null ? o.probability + '%' : '—'}</span>
+                        <span class="opp-detail-k">Probabilidad de cierre</span>
+                        <div class="opp-detail-prob-wrap">
+                            <div class="opp-detail-prob-bar-wrap">
+                                <div class="opp-detail-prob-bar-fill" style="width: ${Math.min(100, Math.max(0, Number(o.probability) ?? 0))}%;"></div>
+                            </div>
+                            <span class="opp-detail-prob-pct">${o.probability != null ? o.probability + '%' : '—'}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="opp-detail-section">
