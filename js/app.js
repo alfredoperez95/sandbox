@@ -603,4 +603,3 @@ document.getElementById('btnExportCsv').addEventListener('click', exportOpportun
     await loadDashboard();
     await loadOpportunities();
 })();
-ript>
