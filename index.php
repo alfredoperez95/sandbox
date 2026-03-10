@@ -92,6 +92,53 @@
         .nav-tabs button:hover { background: var(--bg-hover); color: var(--text); }
         .nav-tabs button.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
         .nav-tabs button.active:hover { color: var(--accent-hover); border-color: var(--accent-hover); }
+        .header-nav-wrap { display: flex; align-items: center; gap: 0.5rem; }
+        .header-add-mobile { display: none; position: relative; }
+        .btn-add-plus {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            border: 1px solid var(--accent);
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
+        }
+        .btn-add-plus:hover { background: var(--accent); color: #fff; }
+        .header-add-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.35rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 0.35rem;
+            min-width: 160px;
+            z-index: 50;
+        }
+        .header-add-menu.open { display: flex; flex-direction: column; gap: 0.25rem; }
+        .header-add-option {
+            padding: 0.6rem 0.9rem;
+            text-align: left;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .header-add-option:hover { background: var(--bg-hover); color: var(--accent); }
         .btn {
             display: inline-flex;
             align-items: center;
@@ -467,14 +514,19 @@
             .app { padding: 1rem; }
             header { flex-direction: column; align-items: stretch; gap: 0.75rem; }
             header .logo-wrap { justify-content: center; }
+            .header-nav-wrap { justify-content: center; flex-wrap: wrap; }
             .nav-tabs { justify-content: center; flex-wrap: wrap; }
-            header > div { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
+            .header-btns-desktop { display: none !important; }
+            .header-add-mobile { display: flex; align-items: center; }
             .filters { gap: 0.5rem; }
             .filter-search { min-width: 100%; }
             .filters select { min-width: 0; flex: 1; min-width: 140px; }
             .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-            .dash-card { padding: 1rem; }
-            .dash-card .value { font-size: 1.25rem; }
+            .dash-card { padding: 1rem; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+            .dash-card .label { margin-bottom: 0.35rem; }
+            .dash-card .value { font-size: 1.2rem; }
+            .dash-card .value.highlight { font-size: 0.85rem; }
+            .dash-card small { font-size: 0.7rem; margin-top: 0.2rem; }
             th, td { padding: 0.5rem 0.6rem; font-size: 0.9rem; }
             .modal { max-width: 100%; margin: 0.5rem; max-height: 95vh; }
             .modal .body, .modal header { padding: 1rem 1.25rem; }
@@ -487,7 +539,9 @@
             .logo-tagline { font-size: 0.7rem; }
             .nav-tabs button { padding: 0.4rem 0.7rem; font-size: 0.85rem; }
             .btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
-            .dashboard-cards { grid-template-columns: 1fr; }
+            .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+            .dash-card .value { font-size: 1.05rem; }
+            .dash-card .value.highlight { font-size: 0.75rem; }
             .filters { flex-direction: column; }
             .filters select, .filter-search { width: 100%; min-width: 0; }
             #btnExportCsv { width: 100%; }
@@ -511,11 +565,20 @@
                 <img src="https://portal.avvale.com/static/media/Avvale-logo-hor-white.a7b4a25a.png" alt="Avvale" class="logo-img">
                 <span class="logo-tagline">SALESFORCESUCKS</span>
             </div>
-            <nav class="nav-tabs">
-                <button type="button" class="nav-tab active" data-tab="opportunities">Oportunidades</button>
-                <button type="button" class="nav-tab" data-tab="companies">Empresas</button>
-            </nav>
-            <div>
+            <div class="header-nav-wrap">
+                <nav class="nav-tabs">
+                    <button type="button" class="nav-tab active" data-tab="opportunities">Oportunidades</button>
+                    <button type="button" class="nav-tab" data-tab="companies">Empresas</button>
+                </nav>
+                <div class="header-add-mobile" id="headerAddMobile">
+                    <button type="button" class="btn-add-plus" id="btnAddPlus" aria-label="Añadir">+</button>
+                    <div class="header-add-menu" id="headerAddMenu">
+                        <button type="button" class="header-add-option" id="mobileAddCompany">Empresa</button>
+                        <button type="button" class="header-add-option" id="mobileAddOpportunity">Oportunidad</button>
+                    </div>
+                </div>
+            </div>
+            <div class="header-btns-desktop">
                 <button type="button" class="btn btn-primary" id="btnNewCompany">+ Empresa</button>
                 <button type="button" class="btn btn-primary" id="btnNewOpportunity">+ Oportunidad</button>
             </div>
@@ -1333,6 +1396,25 @@
         document.getElementById('btnNewOpportunity2').addEventListener('click', () => openOpportunityForm());
         document.getElementById('btnNewCompany').addEventListener('click', () => openCompanyForm());
         document.getElementById('btnNewCompany2').addEventListener('click', () => openCompanyForm());
+
+        const btnAddPlus = document.getElementById('btnAddPlus');
+        const headerAddMenu = document.getElementById('headerAddMenu');
+        if (btnAddPlus && headerAddMenu) {
+            btnAddPlus.addEventListener('click', function(e) {
+                e.stopPropagation();
+                headerAddMenu.classList.toggle('open');
+            });
+            document.getElementById('mobileAddCompany').addEventListener('click', function() {
+                headerAddMenu.classList.remove('open');
+                openCompanyForm();
+            });
+            document.getElementById('mobileAddOpportunity').addEventListener('click', function() {
+                headerAddMenu.classList.remove('open');
+                openOpportunityForm();
+            });
+            document.addEventListener('click', function() { headerAddMenu.classList.remove('open'); });
+            headerAddMenu.addEventListener('click', function(e) { e.stopPropagation(); });
+        }
         document.getElementById('saveOpportunity').addEventListener('click', async () => {
             const id = document.getElementById('oppId').value;
             const payload = {
