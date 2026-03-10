@@ -327,6 +327,64 @@
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .charts-toggle-wrap { margin-bottom: 1rem; }
+        .charts-toggle-wrap .btn { font-size: 0.85rem; }
+        .charts-block {
+            display: none;
+            margin-bottom: 2rem;
+        }
+        .charts-block.visible { display: block; }
+        .charts-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        .charts-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .chart-row:last-child { margin-bottom: 0; }
+        .chart-label {
+            min-width: 100px;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+        .chart-bar-wrap {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-hover);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .chart-bar {
+            height: 100%;
+            border-radius: 6px;
+            min-width: 4px;
+            transition: width 0.4s ease;
+        }
+        .chart-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            min-width: 4rem;
+            text-align: right;
+        }
+        .chart-section { margin-bottom: 1.5rem; }
+        .chart-section:last-child { margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -353,6 +411,19 @@
 
         <section id="section-opportunities" class="section active">
             <div class="dashboard-cards" id="dashboardCards"></div>
+            <div class="charts-toggle-wrap">
+                <button type="button" class="btn btn-secondary" id="btnToggleCharts">Ver gráficos por fase</button>
+            </div>
+            <div class="charts-block" id="chartsBlock">
+                <div class="charts-card">
+                    <h3>Oportunidades por fase</h3>
+                    <div id="chartByCount"></div>
+                </div>
+                <div class="charts-card" style="margin-top: 1rem;">
+                    <h3>Valor estimado por fase (€)</h3>
+                    <div id="chartByValue"></div>
+                </div>
+            </div>
             <div class="filters">
                 <select id="filterStage">
                     <option value="">Todas las etapas</option>
@@ -715,6 +786,31 @@
             document.getElementById('oppCloseDate').min = new Date().toISOString().split('T')[0];
         }
 
+        function renderCharts(d) {
+            const byStage = d.by_stage || [];
+            const maxCount = Math.max(1, ...byStage.map(s => Number(s.count)));
+            const maxValue = Math.max(1, ...byStage.map(s => Number(s.total_value)));
+            const chartCount = document.getElementById('chartByCount');
+            const chartValue = document.getElementById('chartByValue');
+            chartCount.innerHTML = byStage.map(s => {
+                const pct = (Number(s.count) / maxCount) * 100;
+                return `<div class="chart-row">
+                    <span class="chart-label">${escapeHtml(s.name)}</span>
+                    <div class="chart-bar-wrap"><div class="chart-bar" style="width:${pct}%; background:${s.color || 'var(--accent)'};"></div></div>
+                    <span class="chart-value">${s.count}</span>
+                </div>`;
+            }).join('');
+            chartValue.innerHTML = byStage.map(s => {
+                const val = Number(s.total_value);
+                const pct = (val / maxValue) * 100;
+                return `<div class="chart-row">
+                    <span class="chart-label">${escapeHtml(s.name)}</span>
+                    <div class="chart-bar-wrap"><div class="chart-bar" style="width:${pct}%; background:${s.color || 'var(--accent)'};"></div></div>
+                    <span class="chart-value">${val.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
+                </div>`;
+            }).join('');
+        }
+
         async function loadDashboard() {
             const d = await api('dashboard');
             const wrap = document.getElementById('dashboardCards');
@@ -730,7 +826,14 @@
                     <div class="value highlight">${Number(d.pipeline_value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</div>
                 </div>
             `;
+            renderCharts(d);
         }
+
+        document.getElementById('btnToggleCharts').addEventListener('click', function() {
+            const block = document.getElementById('chartsBlock');
+            const isVisible = block.classList.toggle('visible');
+            this.textContent = isVisible ? 'Ocultar gráficos' : 'Ver gráficos por fase';
+        });
         let lastOpportunitiesList = [];
         let filteredOpportunitiesList = [];
 
