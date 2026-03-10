@@ -252,6 +252,11 @@
             border-color: var(--accent);
         }
         .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.9;
+            cursor: pointer;
+        }
         .empty-state {
             text-align: center;
             padding: 3rem 1.5rem;
@@ -520,6 +525,33 @@
         </section>
 
         <section id="section-companies" class="section">
+            <div class="filters" id="companiesFilters">
+                <select id="filterCompanySector">
+                    <option value="">Todos los sectores</option>
+                    <option value="Consultoría">Consultoría</option>
+                    <option value="Tecnología">Tecnología</option>
+                    <option value="Banca y finanzas">Banca y finanzas</option>
+                    <option value="Retail y distribución">Retail y distribución</option>
+                    <option value="Industria y manufactura">Industria y manufactura</option>
+                    <option value="Energía y utilities">Energía y utilities</option>
+                    <option value="Salud">Salud</option>
+                    <option value="Telecomunicaciones">Telecomunicaciones</option>
+                    <option value="Sector público">Sector público</option>
+                    <option value="Logística y transporte">Logística y transporte</option>
+                    <option value="Seguros">Seguros</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Marketing y medios">Marketing y medios</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <select id="filterCompanySize">
+                    <option value="">Todos los tamaños</option>
+                    <option value="startup">Startup</option>
+                    <option value="pyme">PYME</option>
+                    <option value="mediana">Mediana</option>
+                    <option value="gran_empresa">Gran empresa</option>
+                </select>
+                <input type="search" id="filterCompanySearch" placeholder="Buscar por nombre..." class="filter-search">
+            </div>
             <div class="card">
                 <div class="table-wrap">
                     <table>
@@ -972,24 +1004,37 @@
             loading.style.display = 'none';
             applyOpportunitiesFiltersAndRender();
         }
-        async function loadCompaniesTable() {
+        let lastCompaniesList = [];
+        let filteredCompaniesList = [];
+
+        function applyCompaniesFiltersAndRender() {
+            const sector = (document.getElementById('filterCompanySector').value || '').trim();
+            const size = (document.getElementById('filterCompanySize').value || '').trim();
+            const search = (document.getElementById('filterCompanySearch').value || '').trim().toLowerCase();
+            filteredCompaniesList = lastCompaniesList.filter(c => {
+                if (sector && (c.industry || '') !== sector) return false;
+                if (size && (c.size || '') !== size) return false;
+                if (search && !(c.name || '').toLowerCase().includes(search)) return false;
+                return true;
+            });
+            renderCompaniesTable(filteredCompaniesList);
+        }
+
+        function renderCompaniesTable(list) {
             const tbody = document.getElementById('companiesTable');
             const empty = document.getElementById('companiesEmpty');
-            const loading = document.getElementById('companiesLoading');
-            loading.style.display = 'block';
             empty.style.display = 'none';
-            tbody.innerHTML = '';
-            const list = await api('companies');
-            loading.style.display = 'none';
             if (!list.length) {
+                tbody.innerHTML = '';
                 empty.style.display = 'block';
                 return;
             }
+            const sizeLabels = { startup: 'Startup', pyme: 'PYME', mediana: 'Mediana', gran_empresa: 'Gran empresa' };
             tbody.innerHTML = list.map(c => `
                 <tr>
                     <td><a href="#" class="view-company" data-id="${c.id}" style="color:var(--accent); text-decoration:none; font-weight:500;">${escapeHtml(c.name)}</a></td>
                     <td>${escapeHtml(c.industry || '—')}</td>
-                    <td>${escapeHtml(c.size || '—')}</td>
+                    <td>${escapeHtml(sizeLabels[c.size] || c.size || '—')}</td>
                     <td class="actions-cell">
                         <button type="button" class="view-company-btn" data-id="${c.id}">Ver</button>
                         <button type="button" class="edit-company" data-id="${c.id}">Editar</button>
@@ -1001,6 +1046,21 @@
             tbody.querySelectorAll('.edit-company').forEach(b => b.addEventListener('click', () => openCompanyForm(parseInt(b.dataset.id))));
             tbody.querySelectorAll('.add-contact').forEach(b => b.addEventListener('click', () => openContactForm(parseInt(b.dataset.id))));
         }
+
+        async function loadCompaniesTable() {
+            const empty = document.getElementById('companiesEmpty');
+            const loading = document.getElementById('companiesLoading');
+            loading.style.display = 'block';
+            empty.style.display = 'none';
+            document.getElementById('companiesTable').innerHTML = '';
+            lastCompaniesList = await api('companies');
+            loading.style.display = 'none';
+            applyCompaniesFiltersAndRender();
+        }
+
+        document.getElementById('filterCompanySector').addEventListener('change', applyCompaniesFiltersAndRender);
+        document.getElementById('filterCompanySize').addEventListener('change', applyCompaniesFiltersAndRender);
+        document.getElementById('filterCompanySearch').addEventListener('input', applyCompaniesFiltersAndRender);
         function escapeHtml(s) { if (s == null) return ''; const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
 
         document.querySelectorAll('.nav-tab').forEach(tab => {
