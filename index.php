@@ -694,8 +694,8 @@
                         <select id="oppStageId" name="stage_id"></select>
                     </div>
                     <div class="form-group">
-                        <label>Probabilidad (%)</label>
-                        <input type="number" id="oppProbability" name="probability" min="0" max="100" value="10">
+                        <label>Probabilidad de negocio (%)</label>
+                        <input type="number" id="oppProbability" name="probability" min="0" max="100" value="10" title="Afecta al pipeline pesado. En Ganada/Perdida se ajusta automáticamente.">
                     </div>
                     <div class="form-group">
                         <label>Fecha cierre prevista</label>
@@ -905,6 +905,12 @@
         document.getElementById('oppCompanyId').addEventListener('change', function() {
             loadContactsForCompany(this.value, 'oppContactId');
         });
+        document.getElementById('oppStageId').addEventListener('change', function() {
+            const v = parseInt(this.value, 10);
+            const probEl = document.getElementById('oppProbability');
+            if (v === 5) probEl.value = 100;
+            else if (v === 6) probEl.value = 0;
+        });
 
         // Descripción sugerida según título (solo si está vacía)
         const DESCRIPTION_TEMPLATES = [
@@ -988,6 +994,8 @@
                 <div class="dash-card">
                     <div class="label">Pipeline total</div>
                     <div class="value highlight">${Number(d.pipeline_value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</div>
+                    <div class="label" style="margin-top: 0.75rem;">Pipeline pesado</div>
+                    <div class="value highlight" style="font-size: 0.9rem;">${Number(d.pipeline_weighted || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</div>
                 </div>
             `;
             renderCharts(d);

@@ -116,6 +116,11 @@ function handleOpportunities(PDO $pdo, string $method, ?int $id, array $input): 
                     return ['error' => "Campo requerido: $key"];
                 }
             }
+            $stageId = (int) ($input['stage_id'] ?? 1);
+            $status = $input['status'] ?? 'open';
+            $probability = (int) ($input['probability'] ?? 10);
+            if ($stageId === 5) { $probability = 100; $status = 'won'; }
+            elseif ($stageId === 6) { $probability = 0; $status = 'lost'; }
             $stmt = $pdo->prepare("
                 INSERT INTO opportunities (company_id, contact_id, title, description, estimated_value, currency, stage_id, probability, expected_close_date, assigned_to, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -127,11 +132,11 @@ function handleOpportunities(PDO $pdo, string $method, ?int $id, array $input): 
                 $input['description'] ?? null,
                 isset($input['estimated_value']) ? (float) $input['estimated_value'] : null,
                 $input['currency'] ?? 'EUR',
-                (int) ($input['stage_id'] ?? 1),
-                (int) ($input['probability'] ?? 10),
+                $stageId,
+                $probability,
                 !empty($input['expected_close_date']) ? $input['expected_close_date'] : null,
                 $input['assigned_to'] ?? null,
-                $input['status'] ?? 'open',
+                $status,
             ]);
             $newId = (int) $pdo->lastInsertId();
             return ['id' => $newId, 'message' => 'Oportunidad creada'];
@@ -140,6 +145,9 @@ function handleOpportunities(PDO $pdo, string $method, ?int $id, array $input): 
                 http_response_code(400);
                 return ['error' => 'ID requerido'];
             }
+            $stageId = array_key_exists('stage_id', $input) ? (int) $input['stage_id'] : null;
+            if ($stageId === 5) { $input['probability'] = 100; $input['status'] = 'won'; }
+            elseif ($stageId === 6) { $input['probability'] = 0; $input['status'] = 'lost'; }
             $fields = [];
             $params = [];
             $allowed = ['company_id', 'contact_id', 'title', 'description', 'estimated_value', 'currency', 'stage_id', 'probability', 'expected_close_date', 'assigned_to', 'status'];
@@ -326,9 +334,12 @@ function handleDashboard(PDO $pdo): array
     $openCount = (int) $stmt->fetch()['total'];
     $stmt = $pdo->query("SELECT COALESCE(SUM(estimated_value), 0) as total FROM opportunities WHERE status = 'open'");
     $pipelineValue = (float) $stmt->fetch()['total'];
+    $stmt = $pdo->query("SELECT COALESCE(SUM(estimated_value * probability / 100.0), 0) as total FROM opportunities WHERE status = 'open'");
+    $pipelineWeighted = (float) $stmt->fetch()['total'];
     return [
         'by_stage' => $byStage,
         'open_opportunities' => $openCount,
         'pipeline_value' => $pipelineValue,
+        'pipeline_weighted' => $pipelineWeighted,
     ];
 }

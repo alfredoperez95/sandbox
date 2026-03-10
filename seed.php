@@ -132,7 +132,9 @@ foreach ($companyIds as $idx => $cid) {
         $stageId = $stagePool[$stagePoolIdx % count($stagePool)];
         $stagePoolIdx++;
         $value = $values[($idx * 2 + $o) % count($values)];
-        $prob = [10, 20, 40, 60, 80, 90][min($stageId - 1, 5)] ?? 50;
+        $probRanges = [1 => [10, 25], 2 => [20, 45], 3 => [40, 70], 4 => [60, 90], 5 => [100, 100], 6 => [0, 0]];
+        [$lo, $hi] = $probRanges[$stageId] ?? [10, 50];
+        $prob = $lo === $hi ? $lo : rand($lo, $hi);
         $daysOffset = ($stageId >= 5) ? -rand(30, 180) : (30 + ($idx + $o) * 14);
         $closeDate = $today->modify((string) $daysOffset . ' days')->format('Y-m-d');
         $contactId = $contacts[$o % count($contacts)];
