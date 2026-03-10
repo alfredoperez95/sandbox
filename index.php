@@ -373,11 +373,19 @@
                     </div>
                     <div class="form-group">
                         <label>Fecha cierre prevista</label>
-                        <input type="date" id="oppCloseDate" name="expected_close_date">
+                        <input type="date" id="oppCloseDate" name="expected_close_date" min="">
                     </div>
                     <div class="form-group">
                         <label>Asignado a</label>
-                        <input type="text" id="oppAssigned" name="assigned_to" placeholder="Nombre del responsable">
+                        <select id="oppAssigned" name="assigned_to">
+                            <option value="">— Seleccionar —</option>
+                            <option value="Alfredo Pérez">Alfredo Pérez</option>
+                            <option value="Rafa Calvo">Rafa Calvo</option>
+                            <option value="Guillermo Truhan">Guillermo Truhan</option>
+                            <option value="Gerard Prats">Gerard Prats</option>
+                            <option value="Xavi Tor">Xavi Tor</option>
+                            <option value="Alvaro Arbaiza">Alvaro Arbaiza</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -401,7 +409,23 @@
                     </div>
                     <div class="form-group">
                         <label>Sector</label>
-                        <input type="text" id="companyIndustry" name="industry" placeholder="Consultoría, Tecnología...">
+                        <select id="companyIndustry" name="industry">
+                            <option value="">— Seleccionar —</option>
+                            <option value="Consultoría">Consultoría</option>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Banca y finanzas">Banca y finanzas</option>
+                            <option value="Retail y distribución">Retail y distribución</option>
+                            <option value="Industria y manufactura">Industria y manufactura</option>
+                            <option value="Energía y utilities">Energía y utilities</option>
+                            <option value="Salud">Salud</option>
+                            <option value="Telecomunicaciones">Telecomunicaciones</option>
+                            <option value="Sector público">Sector público</option>
+                            <option value="Logística y transporte">Logística y transporte</option>
+                            <option value="Seguros">Seguros</option>
+                            <option value="Legal">Legal</option>
+                            <option value="Marketing y medios">Marketing y medios</option>
+                            <option value="Otro">Otro</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Tamaño</label>
@@ -554,6 +578,37 @@
             loadContactsForCompany(this.value, 'oppContactId');
         });
 
+        // Descripción sugerida según título (solo si está vacía)
+        const DESCRIPTION_TEMPLATES = [
+            { keywords: ['transformación digital', 'transformacion digital'], text: 'Proyecto de consultoría en transformación digital. Alcance: diagnóstico, roadmap y acompañamiento en la implementación.' },
+            { keywords: ['estratégic', 'estrategia'], text: 'Proyecto de consultoría estratégica. Definición de objetivos, análisis y plan de actuación.' },
+            { keywords: ['operaciones', 'operativa'], text: 'Proyecto de consultoría en mejora de operaciones. Análisis de procesos y propuesta de optimización.' },
+            { keywords: ['digital'], text: 'Proyecto de consultoría digital. Análisis de capacidades actuales y propuesta de evolución.' },
+            { keywords: ['proceso', 'procesos'], text: 'Proyecto de consultoría en procesos. Mapeo, análisis y mejora de flujos de trabajo.' },
+            { keywords: ['organizativ', 'cambio'], text: 'Proyecto de consultoría organizativa y gestión del cambio. Acompañamiento en la transformación.' },
+            { keywords: ['tecnologí', 'tecnología', 'it ', ' sistemas'], text: 'Proyecto de consultoría tecnológica. Análisis de sistemas y propuesta de soluciones.' },
+        ];
+        const DEFAULT_DESCRIPTION = 'Proyecto de consultoría. Alcance por definir con el cliente.';
+        function suggestDescriptionFromTitle() {
+            const title = (document.getElementById('oppTitle').value || '').toLowerCase();
+            const descEl = document.getElementById('oppDescription');
+            if (!title || descEl.value.trim() !== '') return;
+            for (const t of DESCRIPTION_TEMPLATES) {
+                if (t.keywords.some(kw => title.includes(kw))) {
+                    descEl.value = t.text;
+                    return;
+                }
+            }
+            descEl.value = DEFAULT_DESCRIPTION;
+        }
+        document.getElementById('oppTitle').addEventListener('input', suggestDescriptionFromTitle);
+        document.getElementById('oppTitle').addEventListener('blur', suggestDescriptionFromTitle);
+
+        // Fecha mínima = hoy para el calendario de cierre
+        function setCloseDateMin() {
+            document.getElementById('oppCloseDate').min = new Date().toISOString().split('T')[0];
+        }
+
         async function loadDashboard() {
             const d = await api('dashboard');
             const wrap = document.getElementById('dashboardCards');
@@ -675,6 +730,7 @@
                     }, 100);
                 });
             }
+            setCloseDateMin();
             document.getElementById('modalOpportunity').classList.add('open');
         }
         function openCompanyForm(id) {
