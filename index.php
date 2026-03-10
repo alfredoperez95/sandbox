@@ -129,7 +129,7 @@
         }
         .dash-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem; }
         .dash-card .value { font-size: 1.5rem; font-weight: 700; color: var(--text); }
-        .dash-card .value.highlight { color: var(--accent); }
+        .dash-card .value.highlight { color: var(--accent); font-size: 0.95rem; font-weight: 600; line-height: 1.2; }
         .filters {
             display: flex;
             flex-wrap: wrap;

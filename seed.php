@@ -76,7 +76,6 @@ $sapDescriptions = [
     'Implementación de módulos de ventas y materiales. Integración con logística.',
 ];
 
-$stages = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]; // prospección a ganada/perdida para histórico
 $values = [45000, 78000, 120000, 185000, 250000, 320000, 95000, 140000, 210000, 65000, 155000, 42000, 175000, 98000, 265000, 88000, 195000, 52000];
 
 $stmtCompany = $pdo->prepare("INSERT INTO companies (name, industry, size, website, notes) VALUES (?, ?, ?, ?, ?)");
@@ -116,17 +115,26 @@ foreach ($companyIds as $i => $cid) {
 
 $today = new DateTimeImmutable();
 $oppIndex = 0;
+$stagePool = [];
+foreach (range(1, 6) as $sid) {
+    $n = $sid <= 4 ? (2 + $sid) : ($sid === 5 ? 4 : 3);
+    $stagePool = array_merge($stagePool, array_fill(0, $n, $sid));
+}
+shuffle($stagePool);
+$stagePoolIdx = 0;
+
 foreach ($companyIds as $idx => $cid) {
     $contacts = $contactIdsByCompany[$cid];
-    $numOpps = 2 + ($idx % 3); // 2, 3 o 4 oportunidades por empresa
+    $numOpps = 2 + ($idx % 3);
     for ($o = 0; $o < $numOpps; $o++) {
-        $titleIdx = ($oppIndex) % count($sapTitles);
+        $titleIdx = $oppIndex % count($sapTitles);
         $descIdx = ($idx + $o) % count($sapDescriptions);
-        $stageId = $stages[$oppIndex % count($stages)];
+        $stageId = $stagePool[$stagePoolIdx % count($stagePool)];
+        $stagePoolIdx++;
         $value = $values[($idx * 2 + $o) % count($values)];
         $prob = [10, 20, 40, 60, 80, 90][min($stageId - 1, 5)] ?? 50;
-        $daysOffset = ($oppIndex % 5 === 0) ? -($o + 1) * 60 : (30 + ($idx + $o) * 14);
-        $closeDate = $today->modify($daysOffset . ' days')->format('Y-m-d');
+        $daysOffset = ($stageId >= 5) ? -rand(30, 180) : (30 + ($idx + $o) * 14);
+        $closeDate = $today->modify((string) $daysOffset . ' days')->format('Y-m-d');
         $contactId = $contacts[$o % count($contacts)];
         $assigned = $responsibles[$idx % count($responsibles)];
         $status = $stageId === 5 ? 'won' : ($stageId === 6 ? 'lost' : 'open');

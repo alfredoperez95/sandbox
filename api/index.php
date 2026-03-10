@@ -318,7 +318,7 @@ function handleDashboard(PDO $pdo): array
     $stmt = $pdo->query("
         SELECT s.id, s.name, s.slug, s.color, COUNT(o.id) as count, COALESCE(SUM(o.estimated_value), 0) as total_value
         FROM stages s
-        LEFT JOIN opportunities o ON o.stage_id = s.id AND o.status = 'open'
+        LEFT JOIN opportunities o ON o.stage_id = s.id
         GROUP BY s.id ORDER BY s.sort_order
     ");
     $byStage = $stmt->fetchAll();
