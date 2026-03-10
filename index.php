@@ -6,19 +6,20 @@
     <title>SALESFORCESUCKS · Consultoría</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0b0f1a;
-            --bg-card: #111827;
-            --bg-hover: #1a2332;
-            --border: #1e293b;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #00d9ff;
-            --accent-dim: rgba(0, 217, 255, 0.15);
-            --success: #10b981;
-            --success-dim: rgba(16, 185, 129, 0.2);
+            --bg-dark: #231c1d;
+            --bg-card: #2d2526;
+            --bg-hover: #3a3032;
+            --border: #3d3335;
+            --text: #e8e4e4;
+            --text-muted: #a39e9e;
+            --accent: #5ab031;
+            --accent-hover: #248b7e;
+            --accent-dim: rgba(90, 176, 49, 0.2);
+            --success: #5ab031;
+            --success-dim: rgba(90, 176, 49, 0.2);
             --warning: #f59e0b;
             --danger: #ef4444;
             --radius: 10px;
@@ -27,7 +28,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             min-height: 100vh;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Archivo', sans-serif;
             background: var(--bg-dark);
             color: var(--text);
             line-height: 1.5;
@@ -50,7 +51,7 @@
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(90deg, var(--accent), #00ff88);
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -90,6 +91,7 @@
         }
         .nav-tabs button:hover { background: var(--bg-hover); color: var(--text); }
         .nav-tabs button.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+        .nav-tabs button.active:hover { color: var(--accent-hover); border-color: var(--accent-hover); }
         .btn {
             display: inline-flex;
             align-items: center;
@@ -101,13 +103,17 @@
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s, background-color 0.2s, color 0.2s, border-color 0.2s;
         }
         .btn:hover { transform: translateY(-1px); }
-        .btn-primary { background: linear-gradient(135deg, #00d9ff, #00b8db); color: #0b0f1a; }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
         .btn-secondary { background: var(--bg-hover); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
         .btn-ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .btn-ghost:hover { background: var(--accent-dim); color: var(--accent-hover); border-color: var(--accent-hover); }
         .btn-danger { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+        .btn-danger:hover { background: rgba(239,68,68,0.35); }
         .dashboard-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
