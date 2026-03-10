@@ -510,6 +510,30 @@
         .company-detail-history th, .company-detail-history td { padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
         .company-detail-history th { color: var(--text-muted); font-weight: 600; }
 
+        .app-footer {
+            margin-top: 3rem;
+            padding: 1.5rem 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+        .app-footer-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .app-footer-logo { height: 28px; width: auto; opacity: 0.9; }
+        .app-footer-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+        .app-footer-links a {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .app-footer-links a:hover { color: var(--accent); }
+
         @media (max-width: 768px) {
             .app { padding: 1rem; }
             header { flex-direction: column; align-items: stretch; gap: 0.75rem; }
@@ -519,8 +543,9 @@
             .header-btns-desktop { display: none !important; }
             .header-add-mobile { display: flex; align-items: center; }
             .filters { gap: 0.5rem; }
-            .filter-search { min-width: 100%; }
-            .filters select { min-width: 0; flex: 1; min-width: 140px; }
+            .filters select { width: 50%; min-width: 0; flex: 0 0 calc(50% - 0.375rem); box-sizing: border-box; }
+            .filter-search { width: 50%; min-width: 0; flex: 0 0 calc(50% - 0.375rem); box-sizing: border-box; }
+            .filters .btn { flex: 0 0 100%; }
             .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
             .dash-card { padding: 1rem; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
             .dash-card .label { margin-bottom: 0.35rem; }
@@ -532,6 +557,9 @@
             .modal .body, .modal header { padding: 1rem 1.25rem; }
             .opp-detail-grid { grid-template-columns: 90px 1fr; gap: 0.35rem 0.75rem; font-size: 0.85rem; }
             .chart-donut-wrap { flex-direction: column; gap: 1rem; }
+            .app-footer { margin-top: 2rem; padding: 1.25rem 1rem; }
+            .app-footer-inner { flex-direction: column; text-align: center; }
+            .app-footer-links { justify-content: center; }
         }
         @media (max-width: 480px) {
             .app { padding: 0.75rem; }
@@ -542,9 +570,12 @@
             .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
             .dash-card .value { font-size: 1.05rem; }
             .dash-card .value.highlight { font-size: 0.75rem; }
-            .filters { flex-direction: column; }
-            .filters select, .filter-search { width: 100%; min-width: 0; }
-            #btnExportCsv { width: 100%; }
+            .app-footer { padding: 1rem 0.75rem; }
+            .app-footer-logo { height: 24px; }
+            .app-footer-links { gap: 1rem; }
+            .filters { flex-direction: row; flex-wrap: wrap; }
+            .filters select, .filter-search { width: 50%; flex: 0 0 calc(50% - 0.3rem); min-width: 0; box-sizing: border-box; }
+            #btnExportCsv { flex: 0 0 100%; }
             .actions-cell button { padding: 0.3rem 0.5rem; font-size: 0.8rem; margin-right: 0.15rem; }
             .opp-detail-modal .modal header { flex-direction: column; }
             .opp-detail-grid { grid-template-columns: 1fr; }
@@ -699,6 +730,18 @@
             </div>
         </section>
     </div>
+
+    <footer class="app-footer">
+        <div class="app-footer-inner">
+            <img src="https://portal.avvale.com/static/media/Avvale-logo-hor-white.a7b4a25a.png" alt="Avvale" class="app-footer-logo">
+            <nav class="app-footer-links">
+                <a href="#">Aviso legal</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Contacto</a>
+                <a href="#">Cookies</a>
+            </nav>
+        </div>
+    </footer>
 
     <!-- Modal Detalle Empresa -->
     <div class="modal-overlay" id="modalCompanyDetail">
