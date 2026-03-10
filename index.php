@@ -279,9 +279,56 @@
         }
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.error { border-color: var(--danger); color: #f87171; }
+
+        .welcome-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .welcome-screen .welcome-logo {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 2.5rem;
+            animation: welcomeFadeIn 0.8s ease-out;
+        }
+        .welcome-screen .welcome-tagline {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+            animation: welcomeFadeIn 0.8s ease-out 0.2s both;
+        }
+        .welcome-screen .welcome-btn {
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            animation: welcomeFadeIn 0.8s ease-out 0.4s both;
+        }
+        @keyframes welcomeFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
+    <div class="welcome-screen" id="welcomeScreen">
+        <img src="https://portal.avvale.com/static/media/Avvale-logo-hor-white.a7b4a25a.png" alt="Avvale" class="welcome-logo">
+        <p class="welcome-tagline">Gestión de oportunidades B2B</p>
+        <button type="button" class="btn btn-primary welcome-btn" id="welcomeEnter">Entrar</button>
+    </div>
     <div class="app">
         <header>
             <div class="logo-wrap">
@@ -562,6 +609,13 @@
 
     <script>
         const API = '/api';
+        document.getElementById('welcomeEnter').addEventListener('click', function() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            try { sessionStorage.setItem('welcomeSeen', '1'); } catch (e) {}
+        });
+        if (sessionStorage.getItem('welcomeSeen')) {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+        }
         function apiUrl(path, query = {}) {
             const q = new URLSearchParams(query).toString();
             return API + '/' + path + (q ? '?' + q : '');
