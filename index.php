@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oportunidades B2B · Consultoría</title>
+    <title>SALESFORCESUCKS · Consultoría</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -254,7 +254,7 @@
 <body>
     <div class="app">
         <header>
-            <span class="logo">Oportunidades B2B</span>
+            <span class="logo">SALESFORCESUCKS</span>
             <nav class="nav-tabs">
                 <button type="button" class="nav-tab active" data-tab="opportunities">Oportunidades</button>
                 <button type="button" class="nav-tab" data-tab="companies">Empresas</button>

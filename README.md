@@ -1,4 +1,4 @@
-# Oportunidades B2B · Gestión de ventas para consultoría
+# SALESFORCESUCKS · Gestión de ventas para consultoría
 
 Aplicación para la **creación y gestión de oportunidades de venta** en entorno B2B para una empresa de consultoría.
 
