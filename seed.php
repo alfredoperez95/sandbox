@@ -76,12 +76,12 @@ $sapDescriptions = [
     'Implementación de módulos de ventas y materiales. Integración con logística.',
 ];
 
-$stages = [1, 1, 2, 2, 3, 3, 4, 4, 5]; // más peso en primeras etapas y alguna ganada
-$values = [45000, 78000, 120000, 185000, 250000, 320000, 95000, 140000, 210000, 65000, 155000, 42000, 175000, 98000, 265000];
+$stages = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]; // prospección a ganada/perdida para histórico
+$values = [45000, 78000, 120000, 185000, 250000, 320000, 95000, 140000, 210000, 65000, 155000, 42000, 175000, 98000, 265000, 88000, 195000, 52000];
 
 $stmtCompany = $pdo->prepare("INSERT INTO companies (name, industry, size, website, notes) VALUES (?, ?, ?, ?, ?)");
 $stmtContact = $pdo->prepare("INSERT INTO contacts (company_id, name, role, email, phone, is_primary) VALUES (?, ?, ?, ?, ?, ?)");
-$stmtOpp = $pdo->prepare("INSERT INTO opportunities (company_id, contact_id, title, description, estimated_value, currency, stage_id, probability, expected_close_date, assigned_to, status) VALUES (?, ?, ?, ?, ?, 'EUR', ?, ?, ?, ?, 'open')");
+$stmtOpp = $pdo->prepare("INSERT INTO opportunities (company_id, contact_id, title, description, estimated_value, currency, stage_id, probability, expected_close_date, assigned_to, status) VALUES (?, ?, ?, ?, ?, 'EUR', ?, ?, ?, ?, ?)");
 
 $contactNames = [
     'Carlos Méndez', 'Laura Sánchez', 'Miguel Ángel Ruiz', 'Ana Belén Torres', 'Francisco Javier López',
@@ -115,18 +115,21 @@ foreach ($companyIds as $i => $cid) {
 }
 
 $today = new DateTimeImmutable();
+$oppIndex = 0;
 foreach ($companyIds as $idx => $cid) {
     $contacts = $contactIdsByCompany[$cid];
-    $numOpps = ($idx % 4 === 0) ? 2 : 1;
+    $numOpps = 2 + ($idx % 3); // 2, 3 o 4 oportunidades por empresa
     for ($o = 0; $o < $numOpps; $o++) {
-        $titleIdx = ($idx * 3 + $o) % count($sapTitles);
+        $titleIdx = ($oppIndex) % count($sapTitles);
         $descIdx = ($idx + $o) % count($sapDescriptions);
-        $stageId = $stages[($idx + $o) % count($stages)];
+        $stageId = $stages[$oppIndex % count($stages)];
         $value = $values[($idx * 2 + $o) % count($values)];
-        $prob = [10, 20, 40, 60, 80, 90][$stageId - 1] ?? 50;
-        $closeDate = $today->modify('+' . (30 + ($idx + $o) * 14) . ' days')->format('Y-m-d');
+        $prob = [10, 20, 40, 60, 80, 90][min($stageId - 1, 5)] ?? 50;
+        $daysOffset = ($oppIndex % 5 === 0) ? -($o + 1) * 60 : (30 + ($idx + $o) * 14);
+        $closeDate = $today->modify($daysOffset . ' days')->format('Y-m-d');
         $contactId = $contacts[$o % count($contacts)];
         $assigned = $responsibles[$idx % count($responsibles)];
+        $status = $stageId === 5 ? 'won' : ($stageId === 6 ? 'lost' : 'open');
         $stmtOpp->execute([
             $cid,
             $contactId,
@@ -137,7 +140,9 @@ foreach ($companyIds as $idx => $cid) {
             $prob,
             $closeDate,
             $assigned,
+            $status,
         ]);
+        $oppIndex++;
     }
 }
 

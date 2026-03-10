@@ -385,6 +385,51 @@
         }
         .chart-section { margin-bottom: 1.5rem; }
         .chart-section:last-child { margin-bottom: 0; }
+
+        .chart-donut-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+        }
+        .chart-donut {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .chart-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .company-detail-section { margin-bottom: 1.5rem; }
+        .company-detail-section:last-child { margin-bottom: 0; }
+        .company-detail-section h4 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .company-detail-grid { display: grid; grid-template-columns: 100px 1fr; gap: 0.35rem 1rem; font-size: 0.9rem; }
+        .company-detail-grid .k { color: var(--text-muted); }
+        .company-detail-contacts { display: flex; flex-direction: column; gap: 0.5rem; }
+        .company-detail-contact { padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .company-detail-contact:last-child { border-bottom: none; }
+        .company-detail-contact strong { display: block; margin-bottom: 0.2rem; }
+        .company-detail-history table { width: 100%; font-size: 0.85rem; }
+        .company-detail-history th, .company-detail-history td { padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
+        .company-detail-history th { color: var(--text-muted); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -496,6 +541,28 @@
                 <div id="companiesLoading" class="loading" style="display:none;">Cargando…</div>
             </div>
         </section>
+    </div>
+
+    <!-- Modal Detalle Empresa -->
+    <div class="modal-overlay" id="modalCompanyDetail">
+        <div class="modal" style="max-width: 640px;">
+            <header><h2 id="companyDetailTitle">Empresa</h2></header>
+            <div class="body" id="companyDetailBody">
+                <div class="company-detail-section" id="companyDetailInfo"></div>
+                <div class="company-detail-section" id="companyDetailContacts">
+                    <h4>Contactos</h4>
+                    <div class="company-detail-contacts" id="companyDetailContactsList"></div>
+                </div>
+                <div class="company-detail-section company-detail-history" id="companyDetailHistory">
+                    <h4>Histórico de oportunidades</h4>
+                    <div id="companyDetailOppsTable"></div>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-ghost" id="btnCompanyDetailEdit">Editar empresa</button>
+                    <button type="button" class="btn btn-secondary" id="btnCompanyDetailContact">+ Contacto</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Oportunidad -->
@@ -688,11 +755,7 @@
         const API = '/api';
         document.getElementById('welcomeEnter').addEventListener('click', function() {
             document.getElementById('welcomeScreen').classList.add('hidden');
-            try { sessionStorage.setItem('welcomeSeen', '1'); } catch (e) {}
         });
-        if (sessionStorage.getItem('welcomeSeen')) {
-            document.getElementById('welcomeScreen').classList.add('hidden');
-        }
         function apiUrl(path, query = {}) {
             const q = new URLSearchParams(query).toString();
             return API + '/' + path + (q ? '?' + q : '');
@@ -788,18 +851,31 @@
 
         function renderCharts(d) {
             const byStage = d.by_stage || [];
-            const maxCount = Math.max(1, ...byStage.map(s => Number(s.count)));
+            const totalCount = byStage.reduce((sum, s) => sum + Number(s.count), 0);
             const maxValue = Math.max(1, ...byStage.map(s => Number(s.total_value)));
             const chartCount = document.getElementById('chartByCount');
             const chartValue = document.getElementById('chartByValue');
-            chartCount.innerHTML = byStage.map(s => {
-                const pct = (Number(s.count) / maxCount) * 100;
-                return `<div class="chart-row">
-                    <span class="chart-label">${escapeHtml(s.name)}</span>
-                    <div class="chart-bar-wrap"><div class="chart-bar" style="width:${pct}%; background:${s.color || 'var(--accent)'};"></div></div>
-                    <span class="chart-value">${s.count}</span>
-                </div>`;
-            }).join('');
+            if (totalCount > 0 && byStage.length > 0) {
+                let acc = 0;
+                const conicParts = byStage.map(s => {
+                    const n = Number(s.count);
+                    const pct = (n / totalCount) * 100;
+                    const start = acc;
+                    acc += pct;
+                    return `${s.color || 'var(--accent)'} ${start}% ${acc}%`;
+                }).join(', ');
+                chartCount.innerHTML = `
+                    <div class="chart-donut-wrap">
+                        <div class="chart-donut" style="background: conic-gradient(${conicParts}); position: relative;">
+                            <div style="position: absolute; inset: 25%; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.5rem;">${totalCount}</div>
+                        </div>
+                        <div class="chart-legend">
+                            ${byStage.map(s => `<div class="chart-legend-item"><span class="chart-legend-dot" style="background:${s.color || 'var(--accent)'};"></span><span>${escapeHtml(s.name)} (${s.count})</span></div>`).join('')}
+                        </div>
+                    </div>`;
+            } else {
+                chartCount.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Sin datos</p>';
+            }
             chartValue.innerHTML = byStage.map(s => {
                 const val = Number(s.total_value);
                 const pct = (val / maxValue) * 100;
@@ -911,15 +987,17 @@
             }
             tbody.innerHTML = list.map(c => `
                 <tr>
-                    <td>${escapeHtml(c.name)}</td>
+                    <td><a href="#" class="view-company" data-id="${c.id}" style="color:var(--accent); text-decoration:none; font-weight:500;">${escapeHtml(c.name)}</a></td>
                     <td>${escapeHtml(c.industry || '—')}</td>
                     <td>${escapeHtml(c.size || '—')}</td>
                     <td class="actions-cell">
+                        <button type="button" class="view-company-btn" data-id="${c.id}">Ver</button>
                         <button type="button" class="edit-company" data-id="${c.id}">Editar</button>
                         <button type="button" class="add-contact" data-id="${c.id}">+ Contacto</button>
                     </td>
                 </tr>
             `).join('');
+            tbody.querySelectorAll('.view-company, .view-company-btn').forEach(b => b.addEventListener('click', e => { e.preventDefault(); openCompanyDetail(parseInt(b.dataset.id)); }));
             tbody.querySelectorAll('.edit-company').forEach(b => b.addEventListener('click', () => openCompanyForm(parseInt(b.dataset.id))));
             tbody.querySelectorAll('.add-contact').forEach(b => b.addEventListener('click', () => openContactForm(parseInt(b.dataset.id))));
         }
@@ -942,6 +1020,55 @@
         document.getElementById('modalCompany').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
         document.getElementById('modalContact').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
         document.getElementById('modalOpportunityDetail').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+        document.getElementById('modalCompanyDetail').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+        async function openCompanyDetail(id) {
+            const [company, opps] = await Promise.all([
+                api('companies/' + id),
+                api('opportunities?company_id=' + id)
+            ]);
+            document.getElementById('companyDetailTitle').textContent = company.name;
+            const sizeLabels = { startup: 'Startup', pyme: 'PYME', mediana: 'Mediana', gran_empresa: 'Gran empresa' };
+            document.getElementById('companyDetailInfo').innerHTML = `
+                <h4>Datos de la empresa</h4>
+                <div class="company-detail-grid">
+                    <span class="k">Sector</span><span>${escapeHtml(company.industry || '—')}</span>
+                    <span class="k">Tamaño</span><span>${escapeHtml(sizeLabels[company.size] || company.size || '—')}</span>
+                    <span class="k">Web</span><span>${company.website ? '<a href="' + escapeHtml(company.website) + '" target="_blank" rel="noopener" style="color:var(--accent);">' + escapeHtml(company.website) + '</a>' : '—'}</span>
+                    <span class="k">Notas</span><span>${escapeHtml(company.notes || '—')}</span>
+                </div>
+            `;
+            const contacts = company.contacts || [];
+            document.getElementById('companyDetailContactsList').innerHTML = contacts.length
+                ? contacts.map(ct => `
+                    <div class="company-detail-contact">
+                        <strong>${escapeHtml(ct.name)}</strong>
+                        ${ct.role ? escapeHtml(ct.role) + ' · ' : ''}
+                        ${ct.email ? '<a href="mailto:' + escapeHtml(ct.email) + '" style="color:var(--accent);">' + escapeHtml(ct.email) + '</a>' : ''}
+                        ${ct.phone ? ' · ' + escapeHtml(ct.phone) : ''}
+                    </div>
+                `).join('')
+                : '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contactos</p>';
+            const oppsList = Array.isArray(opps) ? opps : [];
+            document.getElementById('companyDetailOppsTable').innerHTML = oppsList.length
+                ? `<table><thead><tr><th>Oportunidad</th><th>Etapa</th><th>Valor</th><th>Cierre</th><th></th></tr></thead><tbody>
+                ${oppsList.map(o => `
+                    <tr>
+                        <td><a href="#" class="view-opp-in-detail" data-id="${o.id}" style="color:var(--accent);">${escapeHtml(o.title)}</a></td>
+                        <td><span class="badge" style="background:${(o.stage_color || '#333')}22; color:${o.stage_color || '#fff'}">${escapeHtml(o.stage_name || '—')}</span></td>
+                        <td>${o.estimated_value != null ? Number(o.estimated_value).toLocaleString('es-ES', { style: 'currency', currency: o.currency || 'EUR' }) : '—'}</td>
+                        <td>${o.expected_close_date || '—'}</td>
+                        <td><button type="button" class="btn-edit-opp-detail" data-id="${o.id}">Editar</button></td>
+                    </tr>
+                `).join('')}
+                </tbody></table>`
+                : '<p style="color:var(--text-muted); font-size:0.9rem;">Sin oportunidades</p>';
+            document.getElementById('modalCompanyDetail').classList.add('open');
+            document.getElementById('companyDetailBody').querySelectorAll('.view-opp-in-detail').forEach(b => b.addEventListener('click', e => { e.preventDefault(); document.getElementById('modalCompanyDetail').classList.remove('open'); openDetail(parseInt(b.dataset.id)); }));
+            document.getElementById('companyDetailBody').querySelectorAll('.btn-edit-opp-detail').forEach(b => { b.addEventListener('click', () => { document.getElementById('modalCompanyDetail').classList.remove('open'); openOpportunityForm(parseInt(b.dataset.id)); }); });
+            document.getElementById('btnCompanyDetailEdit').onclick = () => { document.getElementById('modalCompanyDetail').classList.remove('open'); openCompanyForm(id); };
+            document.getElementById('btnCompanyDetailContact').onclick = () => { document.getElementById('modalCompanyDetail').classList.remove('open'); openContactForm(id); };
+        }
 
         function openOpportunityForm(id) {
             document.getElementById('modalOpportunityTitle').textContent = id ? 'Editar oportunidad' : 'Nueva oportunidad';
