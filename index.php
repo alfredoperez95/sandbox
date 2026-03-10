@@ -168,9 +168,9 @@
             box-shadow: var(--shadow);
             overflow: hidden;
         }
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
         th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
         tr:hover { background: var(--bg-hover); }
         tr:last-child td { border-bottom: none; }
@@ -184,7 +184,7 @@
         .amount { font-weight: 600; color: var(--success); }
         .actions-cell { white-space: nowrap; }
         .actions-cell button {
-            padding: 0.35rem 0.6rem;
+            padding: 0.4rem 0.65rem;
             margin-right: 0.25rem;
             border: none;
             background: transparent;
@@ -192,12 +192,14 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.85rem;
+            transition: background 0.15s, color 0.15s;
         }
         .actions-cell button:hover { background: var(--bg-hover); color: var(--accent); }
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
             display: none;
             align-items: center;
             justify-content: center;
@@ -208,12 +210,12 @@
         .modal {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: 12px;
             max-width: 520px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.4);
         }
         .modal header {
             padding: 1.25rem 1.5rem;
@@ -263,6 +265,27 @@
             color: var(--text-muted);
         }
         .empty-state p { margin-bottom: 1rem; }
+
+        .opp-detail-modal .modal { max-width: 620px; }
+        .opp-detail-modal .modal header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .opp-detail-modal .modal header h2 { font-size: 1.15rem; font-weight: 600; line-height: 1.3; flex: 1; min-width: 0; }
+        .opp-detail-modal .detail-stage-badge { flex-shrink: 0; }
+        .opp-detail-body { padding: 0 1.5rem 1.5rem; }
+        .opp-detail-section { margin-bottom: 1.5rem; }
+        .opp-detail-section:last-of-type { margin-bottom: 0; }
+        .opp-detail-section-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.6rem; font-weight: 600; }
+        .opp-detail-grid { display: grid; grid-template-columns: 110px 1fr; gap: 0.4rem 1rem; font-size: 0.9rem; align-items: baseline; }
+        .opp-detail-grid .opp-detail-k { color: var(--text-muted); font-size: 0.85rem; }
+        .opp-detail-grid .opp-detail-v { font-weight: 500; word-break: break-word; }
+        .opp-detail-desc { background: var(--bg-dark); border-radius: var(--radius); padding: 0.9rem 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text); border: 1px solid var(--border); }
+        .opp-detail-value { font-size: 1.1rem; font-weight: 700; color: var(--success); }
+        .opp-detail-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
         .detail-grid {
             display: grid;
             gap: 1.5rem;
@@ -435,6 +458,41 @@
         .company-detail-history table { width: 100%; font-size: 0.85rem; }
         .company-detail-history th, .company-detail-history td { padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
         .company-detail-history th { color: var(--text-muted); font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .app { padding: 1rem; }
+            header { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+            header .logo-wrap { justify-content: center; }
+            .nav-tabs { justify-content: center; flex-wrap: wrap; }
+            header > div { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
+            .filters { gap: 0.5rem; }
+            .filter-search { min-width: 100%; }
+            .filters select { min-width: 0; flex: 1; min-width: 140px; }
+            .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+            .dash-card { padding: 1rem; }
+            .dash-card .value { font-size: 1.25rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.9rem; }
+            .modal { max-width: 100%; margin: 0.5rem; max-height: 95vh; }
+            .modal .body, .modal header { padding: 1rem 1.25rem; }
+            .opp-detail-grid { grid-template-columns: 90px 1fr; gap: 0.35rem 0.75rem; font-size: 0.85rem; }
+            .chart-donut-wrap { flex-direction: column; gap: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .app { padding: 0.75rem; }
+            .logo-img { height: 28px; }
+            .logo-tagline { font-size: 0.7rem; }
+            .nav-tabs button { padding: 0.4rem 0.7rem; font-size: 0.85rem; }
+            .btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+            .dashboard-cards { grid-template-columns: 1fr; }
+            .filters { flex-direction: column; }
+            .filters select, .filter-search { width: 100%; min-width: 0; }
+            #btnExportCsv { width: 100%; }
+            .actions-cell button { padding: 0.3rem 0.5rem; font-size: 0.8rem; margin-right: 0.15rem; }
+            .opp-detail-modal .modal header { flex-direction: column; }
+            .opp-detail-grid { grid-template-columns: 1fr; }
+            .opp-detail-grid .opp-detail-k { margin-top: 0.25rem; }
+            .opp-detail-grid .opp-detail-k:first-child { margin-top: 0; }
+        }
     </style>
 </head>
 <body>
@@ -762,17 +820,15 @@
     </div>
 
     <!-- Modal Detalle Oportunidad -->
-    <div class="modal-overlay" id="modalOpportunityDetail">
-        <div class="modal" style="max-width: 560px;">
+    <div class="modal-overlay opp-detail-modal" id="modalOpportunityDetail">
+        <div class="modal">
             <header>
                 <h2 id="detailTitle">Detalle</h2>
-                <div style="margin-top: 0.5rem;">
-                    <span class="badge" id="detailStageBadge">—</span>
-                </div>
+                <span class="badge detail-stage-badge" id="detailStageBadge">—</span>
             </header>
-            <div class="body">
-                <div class="detail-grid" id="detailContent"></div>
-                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <div class="body opp-detail-body">
+                <div id="detailContent"></div>
+                <div class="opp-detail-actions">
                     <button type="button" class="btn btn-ghost" id="btnEditOpportunity">Editar</button>
                     <button type="button" class="btn btn-secondary" id="btnDuplicateOpportunity">Duplicar</button>
                     <button type="button" class="btn btn-danger" id="btnDeleteOpportunity">Eliminar</button>
@@ -1178,20 +1234,47 @@
             document.getElementById('contactCompanyId').value = companyId || '';
             document.getElementById('modalContact').classList.add('open');
         }
+        function formatDateYMDToLocal(ymd) {
+            if (!ymd) return '—';
+            const [y, m, d] = ymd.split('-');
+            if (!y || !m || !d) return ymd;
+            return `${d}/${m}/${y}`;
+        }
         async function openDetail(id) {
             const o = await api('opportunities/' + id);
             document.getElementById('detailTitle').textContent = o.title;
-            document.getElementById('detailStageBadge').textContent = o.stage_name;
-            document.getElementById('detailStageBadge').style.background = (o.stage_color || '#333') + '22';
-            document.getElementById('detailStageBadge').style.color = o.stage_color || '#fff';
+            const badge = document.getElementById('detailStageBadge');
+            badge.textContent = o.stage_name;
+            badge.style.background = (o.stage_color || '#333') + '22';
+            badge.style.color = o.stage_color || '#fff';
+            const contactLine = o.contact_name ? (o.contact_email ? escapeHtml(o.contact_name) + ' · <a href="mailto:' + escapeHtml(o.contact_email) + '" style="color:var(--accent);">' + escapeHtml(o.contact_email) + '</a>' : escapeHtml(o.contact_name)) : '—';
+            const valueStr = o.estimated_value != null ? Number(o.estimated_value).toLocaleString('es-ES', { style: 'currency', currency: o.currency || 'EUR' }) : '—';
             document.getElementById('detailContent').innerHTML = `
-                <div class="detail-row"><span class="label">Empresa</span><span class="value">${escapeHtml(o.company_name)}</span></div>
-                <div class="detail-row"><span class="label">Contacto</span><span class="value">${escapeHtml(o.contact_name || '—')} ${o.contact_email ? '(' + escapeHtml(o.contact_email) + ')' : ''}</span></div>
-                <div class="detail-row"><span class="label">Descripción</span><span class="value">${escapeHtml(o.description || '—')}</span></div>
-                <div class="detail-row"><span class="label">Valor estimado</span><span class="value">${o.estimated_value != null ? Number(o.estimated_value).toLocaleString('es-ES', { style: 'currency', currency: o.currency || 'EUR' }) : '—'}</span></div>
-                <div class="detail-row"><span class="label">Probabilidad</span><span class="value">${o.probability ?? '—'}%</span></div>
-                <div class="detail-row"><span class="label">Cierre previsto</span><span class="value">${o.expected_close_date || '—'}</span></div>
-                <div class="detail-row"><span class="label">Asignado a</span><span class="value">${escapeHtml(o.assigned_to || '—')}</span></div>
+                <div class="opp-detail-section">
+                    <div class="opp-detail-section-title">Cliente</div>
+                    <div class="opp-detail-grid">
+                        <span class="opp-detail-k">Empresa</span><span class="opp-detail-v">${escapeHtml(o.company_name)}</span>
+                        <span class="opp-detail-k">Contacto</span><span class="opp-detail-v">${contactLine}</span>
+                    </div>
+                </div>
+                <div class="opp-detail-section">
+                    <div class="opp-detail-section-title">Alcance</div>
+                    <div class="opp-detail-desc">${escapeHtml(o.description || 'Sin descripción.')}</div>
+                </div>
+                <div class="opp-detail-section">
+                    <div class="opp-detail-section-title">Económico</div>
+                    <div class="opp-detail-grid">
+                        <span class="opp-detail-k">Valor estimado</span><span class="opp-detail-v opp-detail-value">${valueStr}</span>
+                        <span class="opp-detail-k">Probabilidad</span><span class="opp-detail-v">${o.probability != null ? o.probability + '%' : '—'}</span>
+                    </div>
+                </div>
+                <div class="opp-detail-section">
+                    <div class="opp-detail-section-title">Planificación</div>
+                    <div class="opp-detail-grid">
+                        <span class="opp-detail-k">Cierre previsto</span><span class="opp-detail-v">${formatDateYMDToLocal(o.expected_close_date)}</span>
+                        <span class="opp-detail-k">Asignado a</span><span class="opp-detail-v">${escapeHtml(o.assigned_to || '—')}</span>
+                    </div>
+                </div>
             `;
             document.getElementById('btnEditOpportunity').onclick = () => { document.getElementById('modalOpportunityDetail').classList.remove('open'); openOpportunityForm(id); };
             document.getElementById('btnDuplicateOpportunity').onclick = () => {
