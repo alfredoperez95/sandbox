@@ -55,11 +55,23 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
         .logo-img {
             height: 36px;
             width: auto;
             display: block;
             object-fit: contain;
+        }
+        .logo-tagline {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+            white-space: nowrap;
         }
         .nav-tabs {
             display: flex;
@@ -129,6 +141,18 @@
             font-size: 0.9rem;
         }
         .filters select:focus { outline: none; border-color: var(--accent); }
+        .filter-search {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.9rem;
+            min-width: 200px;
+        }
+        .filter-search::placeholder { color: var(--text-muted); }
+        .filter-search:focus { outline: none; border-color: var(--accent); }
         .section { display: none; }
         .section.active { display: block; }
         .card {
@@ -260,7 +284,10 @@
 <body>
     <div class="app">
         <header>
-            <img src="https://portal.avvale.com/static/media/Avvale-logo-hor-white.a7b4a25a.png" alt="SALESFORCESUCKS" class="logo-img">
+            <div class="logo-wrap">
+                <img src="https://portal.avvale.com/static/media/Avvale-logo-hor-white.a7b4a25a.png" alt="Avvale" class="logo-img">
+                <span class="logo-tagline">SALESFORCESUCKS</span>
+            </div>
             <nav class="nav-tabs">
                 <button type="button" class="nav-tab active" data-tab="opportunities">Oportunidades</button>
                 <button type="button" class="nav-tab" data-tab="companies">Empresas</button>
@@ -286,6 +313,17 @@
                     <option value="won">Ganadas</option>
                     <option value="lost">Perdidas</option>
                 </select>
+                <select id="filterAssigned">
+                    <option value="">Todos los responsables</option>
+                    <option value="Alfredo Pérez">Alfredo Pérez</option>
+                    <option value="Rafa Calvo">Rafa Calvo</option>
+                    <option value="Guillermo Truhan">Guillermo Truhan</option>
+                    <option value="Gerard Prats">Gerard Prats</option>
+                    <option value="Xavi Tor">Xavi Tor</option>
+                    <option value="Alvaro Arbaiza">Alvaro Arbaiza</option>
+                </select>
+                <input type="search" id="filterSearch" placeholder="Buscar por título o empresa..." class="filter-search">
+                <button type="button" class="btn btn-secondary" id="btnExportCsv" title="Exportar a CSV">Exportar CSV</button>
             </div>
             <div class="card">
                 <div class="table-wrap">
@@ -297,6 +335,7 @@
                                 <th>Etapa</th>
                                 <th>Valor</th>
                                 <th>Cierre previsto</th>
+                                <th>Asignado a</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -510,8 +549,9 @@
             </header>
             <div class="body">
                 <div class="detail-grid" id="detailContent"></div>
-                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button type="button" class="btn btn-ghost" id="btnEditOpportunity">Editar</button>
+                    <button type="button" class="btn btn-secondary" id="btnDuplicateOpportunity">Duplicar</button>
                     <button type="button" class="btn btn-danger" id="btnDeleteOpportunity">Eliminar</button>
                 </div>
             </div>
@@ -631,24 +671,30 @@
                 </div>
             `;
         }
-        async function loadOpportunities() {
+        let lastOpportunitiesList = [];
+        let filteredOpportunitiesList = [];
+
+        function applyOpportunitiesFiltersAndRender() {
+            const assigned = (document.getElementById('filterAssigned').value || '').trim();
+            const search = (document.getElementById('filterSearch').value || '').trim().toLowerCase();
+            filteredOpportunitiesList = lastOpportunitiesList.filter(o => {
+                if (assigned && (o.assigned_to || '') !== assigned) return false;
+                if (search) {
+                    const title = (o.title || '').toLowerCase();
+                    const company = (o.company_name || '').toLowerCase();
+                    if (!title.includes(search) && !company.includes(search)) return false;
+                }
+                return true;
+            });
+            renderOpportunitiesTable(filteredOpportunitiesList);
+        }
+
+        function renderOpportunitiesTable(list) {
             const tbody = document.getElementById('opportunitiesTable');
             const empty = document.getElementById('opportunitiesEmpty');
-            const loading = document.getElementById('opportunitiesLoading');
-            loading.style.display = 'block';
             empty.style.display = 'none';
-            tbody.innerHTML = '';
-            const stageId = document.getElementById('filterStage').value;
-            const companyId = document.getElementById('filterCompany').value;
-            const status = document.getElementById('filterStatus').value;
-            const query = {};
-            if (stageId) query.stage_id = stageId;
-            if (companyId) query.company_id = companyId;
-            if (status) query.status = status;
-            const path = 'opportunities' + (Object.keys(query).length ? '?' + new URLSearchParams(query) : '');
-            const list = await api(path);
-            loading.style.display = 'none';
             if (!list.length) {
+                tbody.innerHTML = '';
                 empty.style.display = 'block';
                 return;
             }
@@ -659,6 +705,7 @@
                     <td><span class="badge" style="background:${o.stage_color || '#333'}22; color:${o.stage_color || '#fff'}">${escapeHtml(o.stage_name || '—')}</span></td>
                     <td class="amount">${o.estimated_value != null ? Number(o.estimated_value).toLocaleString('es-ES', { style: 'currency', currency: o.currency || 'EUR' }) : '—'}</td>
                     <td>${o.expected_close_date || '—'}</td>
+                    <td>${escapeHtml(o.assigned_to || '—')}</td>
                     <td class="actions-cell">
                         <button type="button" class="edit-opp" data-id="${o.id}">Editar</button>
                     </td>
@@ -666,6 +713,25 @@
             `).join('');
             tbody.querySelectorAll('.view-opp').forEach(b => b.addEventListener('click', e => { e.preventDefault(); openDetail(parseInt(b.dataset.id)); }));
             tbody.querySelectorAll('.edit-opp').forEach(b => b.addEventListener('click', () => openOpportunityForm(parseInt(b.dataset.id))));
+        }
+
+        async function loadOpportunities() {
+            const empty = document.getElementById('opportunitiesEmpty');
+            const loading = document.getElementById('opportunitiesLoading');
+            loading.style.display = 'block';
+            empty.style.display = 'none';
+            document.getElementById('opportunitiesTable').innerHTML = '';
+            const stageId = document.getElementById('filterStage').value;
+            const companyId = document.getElementById('filterCompany').value;
+            const status = document.getElementById('filterStatus').value;
+            const query = {};
+            if (stageId) query.stage_id = stageId;
+            if (companyId) query.company_id = companyId;
+            if (status) query.status = status;
+            const path = 'opportunities' + (Object.keys(query).length ? '?' + new URLSearchParams(query) : '');
+            lastOpportunitiesList = await api(path);
+            loading.style.display = 'none';
+            applyOpportunitiesFiltersAndRender();
         }
         async function loadCompaniesTable() {
             const tbody = document.getElementById('companiesTable');
@@ -778,6 +844,28 @@
                 <div class="detail-row"><span class="label">Asignado a</span><span class="value">${escapeHtml(o.assigned_to || '—')}</span></div>
             `;
             document.getElementById('btnEditOpportunity').onclick = () => { document.getElementById('modalOpportunityDetail').classList.remove('open'); openOpportunityForm(id); };
+            document.getElementById('btnDuplicateOpportunity').onclick = () => {
+                document.getElementById('modalOpportunityDetail').classList.remove('open');
+                document.getElementById('modalOpportunityTitle').textContent = 'Nueva oportunidad (copia)';
+                document.getElementById('oppId').value = '';
+                document.getElementById('formOpportunity').reset();
+                document.getElementById('oppId').value = '';
+                document.getElementById('oppCompanyId').value = o.company_id;
+                loadContactsForCompany(o.company_id, 'oppContactId');
+                setTimeout(() => {
+                    document.getElementById('oppContactId').value = o.contact_id || '';
+                    document.getElementById('oppTitle').value = (o.title || '') + ' (copia)';
+                    document.getElementById('oppDescription').value = o.description || '';
+                    document.getElementById('oppValue').value = o.estimated_value ?? '';
+                    document.getElementById('oppCurrency').value = o.currency || 'EUR';
+                    document.getElementById('oppStageId').value = o.stage_id || 1;
+                    document.getElementById('oppProbability').value = o.probability ?? 10;
+                    document.getElementById('oppCloseDate').value = o.expected_close_date || '';
+                    document.getElementById('oppAssigned').value = o.assigned_to || '';
+                }, 150);
+                setCloseDateMin();
+                document.getElementById('modalOpportunity').classList.add('open');
+            };
             document.getElementById('btnDeleteOpportunity').onclick = () => {
                 if (confirm('¿Eliminar esta oportunidad?')) {
                     api('opportunities/' + id, { method: 'DELETE' }).then(() => {
@@ -854,6 +942,33 @@
         document.getElementById('filterStage').addEventListener('change', loadOpportunities);
         document.getElementById('filterCompany').addEventListener('change', loadOpportunities);
         document.getElementById('filterStatus').addEventListener('change', loadOpportunities);
+        document.getElementById('filterAssigned').addEventListener('change', applyOpportunitiesFiltersAndRender);
+        document.getElementById('filterSearch').addEventListener('input', applyOpportunitiesFiltersAndRender);
+
+        function exportOpportunitiesCsv() {
+            const list = filteredOpportunitiesList;
+            if (!list.length) { showToast('No hay datos para exportar', true); return; }
+            const headers = ['Título', 'Empresa', 'Etapa', 'Valor', 'Moneda', 'Cierre previsto', 'Asignado a', 'Probabilidad'];
+            const rows = list.map(o => [
+                (o.title || '').replace(/"/g, '""'),
+                (o.company_name || '').replace(/"/g, '""'),
+                o.stage_name || '',
+                o.estimated_value ?? '',
+                o.currency || 'EUR',
+                o.expected_close_date || '',
+                (o.assigned_to || '').replace(/"/g, '""'),
+                o.probability ?? ''
+            ].map(c => `"${c}"`).join(','));
+            const csv = [headers.map(h => `"${h}"`).join(','), ...rows].join('\r\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'oportunidades_' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('CSV exportado');
+        }
+        document.getElementById('btnExportCsv').addEventListener('click', exportOpportunitiesCsv);
 
         (async () => {
             await loadStages();
