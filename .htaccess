@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteBase /
+# API: /api/opportunities -> api/index.php?path=opportunities
+RewriteCond %{REQUEST_URI} ^/api/(.+)$
+RewriteRule ^api/(.*)$ api/index.php?path=$1 [L,QSA]
