@@ -55,6 +55,12 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        .logo-img {
+            height: 36px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
         .nav-tabs {
             display: flex;
             gap: 0.25rem;
@@ -254,7 +260,7 @@
 <body>
     <div class="app">
         <header>
-            <span class="logo">SALESFORCESUCKS</span>
+            <img src="https://portal.avvale.com/static/media/Avvale-logo-hor-white.a7b4a25a.png" alt="SALESFORCESUCKS" class="logo-img">
             <nav class="nav-tabs">
                 <button type="button" class="nav-tab active" data-tab="opportunities">Oportunidades</button>
                 <button type="button" class="nav-tab" data-tab="companies">Empresas</button>
