@@ -475,27 +475,48 @@ tr:last-child td { border-bottom: none; }
 }
 
 @media (max-width: 768px) {
-    .app-footer {
-        margin-top: 2rem;
-        padding: 1.25rem 1rem;
-    }
-    .app-footer-inner {
-        flex-direction: column;
-        text-align: center;
-    }
-    .app-footer-links {
-        justify-content: center;
-    }
+    .app { padding: 1rem; }
+    header { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+    header .logo-wrap { justify-content: center; }
+    .header-nav-wrap { justify-content: center; flex-wrap: wrap; }
+    .nav-tabs { justify-content: center; flex-wrap: wrap; }
+    .header-btns-desktop { display: none !important; }
+    .header-add-mobile { display: flex; align-items: center; }
+    .filters { gap: 0.5rem; }
+    .filters select { width: 50%; min-width: 0; flex: 0 0 calc(50% - 0.375rem); box-sizing: border-box; }
+    .filter-search { width: 50%; min-width: 0; flex: 0 0 calc(50% - 0.375rem); box-sizing: border-box; }
+    .filters .btn { flex: 0 0 100%; }
+    .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .dash-card { padding: 1rem; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .dash-card .label { margin-bottom: 0.35rem; }
+    .dash-card .value { font-size: 1.2rem; }
+    .dash-card .value.highlight { font-size: 0.85rem; }
+    .dash-card small { font-size: 0.7rem; margin-top: 0.2rem; }
+    th, td { padding: 0.5rem 0.6rem; font-size: 0.9rem; }
+    .modal { max-width: 100%; margin: 0.5rem; max-height: 95vh; }
+    .modal .body, .modal header { padding: 1rem 1.25rem; }
+    .opp-detail-grid { grid-template-columns: 90px 1fr; gap: 0.35rem 0.75rem; font-size: 0.85rem; }
+    .chart-donut-wrap { flex-direction: column; gap: 1rem; }
+    .app-footer { margin-top: 2rem; padding: 1.25rem 1rem; }
+    .app-footer-inner { flex-direction: column; text-align: center; }
+    .app-footer-links { justify-content: center; }
 }
 @media (max-width: 480px) {
-    .app-footer {
-        padding: 1rem 0.75rem;
-    }
-    .app-footer-logo {
-        height: 24px !important;
-        max-width: 100px !important;
-    }
-    .app-footer-links {
-        gap: 1rem;
-    }
+    .app { padding: 0.75rem; }
+    .logo-img { height: 28px; }
+    .logo-tagline { font-size: 0.7rem; }
+    .nav-tabs button { padding: 0.4rem 0.7rem; font-size: 0.85rem; }
+    .btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+    .dashboard-cards { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+    .dash-card .value { font-size: 1.05rem; }
+    .dash-card .value.highlight { font-size: 0.75rem; }
+    .app-footer { padding: 1rem 0.75rem; margin-top: 2rem; }
+    .app-footer-logo { height: 24px !important; max-width: 100px !important; }
+    .app-footer-links { gap: 1rem; }
+    #btnExportCsv { flex: 0 0 100%; }
+    .actions-cell button { padding: 0.3rem 0.5rem; font-size: 0.8rem; margin-right: 0.15rem; }
+    .opp-detail-modal .modal header { flex-direction: column; }
+    .opp-detail-grid { grid-template-columns: 1fr; }
+    .opp-detail-grid .opp-detail-k { margin-top: 0.25rem; }
+    .opp-detail-grid .opp-detail-k:first-child { margin-top: 0; }
 }
