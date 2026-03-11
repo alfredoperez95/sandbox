@@ -160,13 +160,33 @@ header {
 .dash-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: 14px;
     padding: 1.25rem;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,0.03);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.dash-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem; }
-.dash-card .value { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.dash-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--accent);
+    opacity: 0.6;
+}
+.dash-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04);
+}
+.dash-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 600; }
+.dash-card .value { font-size: 1.6rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.dash-card small { font-size: 0.8rem; opacity: 0.9; }
 .dash-card .value.highlight { color: var(--accent); font-size: 0.95rem; font-weight: 600; line-height: 1.2; }
+.dash-card[data-stage-color]::before { background: var(--dash-accent, var(--accent)); opacity: 0.85; }
+.dash-card-pipeline::before { background: var(--accent); opacity: 0.5; }
 .filters {
     display: flex;
     flex-wrap: wrap;
@@ -254,18 +274,23 @@ tr:last-child td { border-bottom: none; }
     overflow-y: auto;
     box-shadow: 0 24px 48px rgba(0,0,0,0.4);
 }
+.modal {
+    position: relative;
+}
 .modal header {
-    padding: 1.25rem 1.5rem;
+    padding: 1.25rem 3rem 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 0.75rem;
 }
-.modal header h2 { font-size: 1.25rem; font-weight: 600; flex: 1; min-width: 0; }
+.modal header h2 { font-size: 1.25rem; font-weight: 600; flex: 1; min-width: 0; padding-right: 0.5rem; }
 .modal-close {
-    flex-shrink: 0;
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
     width: 2rem;
     height: 2rem;
     padding: 0;
@@ -280,6 +305,7 @@ tr:last-child td { border-bottom: none; }
     align-items: center;
     justify-content: center;
     transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
 }
 .modal-close:hover {
     background: var(--bg-hover);

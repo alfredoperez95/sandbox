@@ -145,14 +145,14 @@ async function loadDashboard() {
     wrap.innerHTML = d.by_stage.map(s => {
         const stageColor = s.color || 'var(--accent)';
         return `
-        <div class="dash-card">
+        <div class="dash-card" style="--dash-accent:${stageColor}" data-stage-color="${stageColor}">
             <div class="label" style="color:${stageColor}">${s.name}</div>
             <div class="value" style="color:${stageColor}">${s.count}</div>
             <small style="color:var(--text-muted)">${Number(s.total_value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</small>
         </div>
     `;
     }).join('') + `
-        <div class="dash-card">
+        <div class="dash-card dash-card-pipeline">
             <div class="label">Pipeline total</div>
             <div class="value highlight">${Number(d.pipeline_value).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</div>
             <div class="label" style="margin-top: 0.75rem;">Pipeline pesado</div>
