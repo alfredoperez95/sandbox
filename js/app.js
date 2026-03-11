@@ -1,4 +1,66 @@
 const API = '/api';
+// #region agent log (debug footer/mobile)
+function __agentLog(hypothesisId, message, data) {
+    try {
+        fetch('http://127.0.0.1:7334/ingest/0204095f-4009-4800-a54e-83d6c84703b0', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '525686' },
+            body: JSON.stringify({
+                sessionId: '525686',
+                runId: 'pre-fix',
+                hypothesisId,
+                location: 'js/app.js:__agentLog',
+                message,
+                data,
+                timestamp: Date.now()
+            })
+        }).catch(() => {});
+    } catch (_) {}
+}
+
+function __agentSnapshot(label) {
+    const cssLink = document.querySelector('link[href*="css/app.css"]');
+    const footer = document.querySelector('.app-footer');
+    const footerLogo = document.querySelector('.app-footer-logo');
+    const headerDesktopBtns = document.querySelector('.header-btns-desktop');
+    const headerAddMobile = document.querySelector('#headerAddMobile');
+    const csFooter = footer ? getComputedStyle(footer) : null;
+    const csLogo = footerLogo ? getComputedStyle(footerLogo) : null;
+    const csDesktopBtns = headerDesktopBtns ? getComputedStyle(headerDesktopBtns) : null;
+    const csAddMobile = headerAddMobile ? getComputedStyle(headerAddMobile) : null;
+
+    __agentLog('A_css_loaded', 'snapshot ' + label, {
+        viewport: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio },
+        css: {
+            linkFound: Boolean(cssLink),
+            href: cssLink ? cssLink.getAttribute('href') : null,
+            styleSheetsCount: (document.styleSheets && document.styleSheets.length) || null
+        },
+        footer: footer ? {
+            bg: csFooter && csFooter.backgroundColor,
+            pad: csFooter && (csFooter.paddingTop + ' ' + csFooter.paddingRight + ' ' + csFooter.paddingBottom + ' ' + csFooter.paddingLeft),
+            borderTop: csFooter && csFooter.borderTopWidth
+        } : null,
+        footerLogo: footerLogo ? {
+            attr: { w: footerLogo.getAttribute('width'), h: footerLogo.getAttribute('height') },
+            box: { w: footerLogo.clientWidth, h: footerLogo.clientHeight },
+            css: csLogo ? { w: csLogo.width, h: csLogo.height, maxW: csLogo.maxWidth, maxH: csLogo.maxHeight, objectFit: csLogo.objectFit } : null
+        } : null,
+        header: {
+            desktopBtns: headerDesktopBtns ? { display: csDesktopBtns && csDesktopBtns.display } : null,
+            addMobile: headerAddMobile ? { display: csAddMobile && csAddMobile.display } : null
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => __agentSnapshot('domcontentloaded'));
+let __agentDidResizeLog = false;
+window.addEventListener('resize', () => {
+    if (__agentDidResizeLog) return;
+    __agentDidResizeLog = true;
+    __agentSnapshot('first-resize');
+});
+// #endregion agent log (debug footer/mobile)
 document.getElementById('welcomeEnter').addEventListener('click', function() {
     document.getElementById('welcomeScreen').classList.add('hidden');
 });
