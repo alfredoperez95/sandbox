@@ -258,8 +258,36 @@ tr:last-child td { border-bottom: none; }
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
 }
-.modal header h2 { font-size: 1.25rem; font-weight: 600; }
+.modal header h2 { font-size: 1.25rem; font-weight: 600; flex: 1; min-width: 0; }
+.modal-close {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover {
+    background: var(--bg-hover);
+    color: #fff;
+}
+.modal-close:focus {
+    outline: none;
+}
 .modal .body { padding: 1.5rem; }
 .modal .footer {
     padding: 1rem 1.5rem;
@@ -371,11 +399,17 @@ tr:last-child td { border-bottom: none; }
     gap: 1rem;
 }
 .app-footer-logo {
-    height: 28px;
-    width: auto;
+    height: 28px !important;
+    max-height: 28px !important;
+    max-width: 120px !important;
+    width: auto !important;
     opacity: 0.9;
     display: block;
     object-fit: contain;
+}
+.app-footer img.app-footer-logo {
+    height: 28px !important;
+    max-width: 120px !important;
 }
 .app-footer-links {
     display: flex;
@@ -458,7 +492,8 @@ tr:last-child td { border-bottom: none; }
         padding: 1rem 0.75rem;
     }
     .app-footer-logo {
-        height: 24px;
+        height: 24px !important;
+        max-width: 100px !important;
     }
     .app-footer-links {
         gap: 1rem;

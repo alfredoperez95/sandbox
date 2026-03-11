@@ -171,7 +171,7 @@
     <!-- Modal Detalle Empresa -->
     <div class="modal-overlay" id="modalCompanyDetail">
         <div class="modal" style="max-width: 640px;">
-            <header><h2 id="companyDetailTitle">Empresa</h2></header>
+            <header><h2 id="companyDetailTitle">Empresa</h2><button type="button" class="modal-close" data-close="modalCompanyDetail" aria-label="Cerrar">×</button></header>
             <div class="body" id="companyDetailBody">
                 <div class="company-detail-section" id="companyDetailInfo"></div>
                 <div class="company-detail-section" id="companyDetailContacts">
@@ -193,7 +193,7 @@
     <!-- Modal Oportunidad -->
     <div class="modal-overlay" id="modalOpportunity">
         <div class="modal">
-            <header><h2 id="modalOpportunityTitle">Nueva oportunidad</h2></header>
+            <header><h2 id="modalOpportunityTitle">Nueva oportunidad</h2><button type="button" class="modal-close" data-close="modalOpportunity" aria-label="Cerrar">×</button></header>
             <div class="body">
                 <form id="formOpportunity">
                     <input type="hidden" id="oppId" name="id">
@@ -260,7 +260,7 @@
     <!-- Modal Empresa -->
     <div class="modal-overlay" id="modalCompany">
         <div class="modal">
-            <header><h2 id="modalCompanyTitle">Nueva empresa</h2></header>
+            <header><h2 id="modalCompanyTitle">Nueva empresa</h2><button type="button" class="modal-close" data-close="modalCompany" aria-label="Cerrar">×</button></header>
             <div class="body">
                 <form id="formCompany">
                     <input type="hidden" id="companyId" name="id">
@@ -318,7 +318,7 @@
     <!-- Modal Contacto -->
     <div class="modal-overlay" id="modalContact">
         <div class="modal">
-            <header><h2 id="modalContactTitle">Nuevo contacto</h2></header>
+            <header><h2 id="modalContactTitle">Nuevo contacto</h2><button type="button" class="modal-close" data-close="modalContact" aria-label="Cerrar">×</button></header>
             <div class="body">
                 <form id="formContact">
                     <input type="hidden" id="contactId" name="id">
@@ -360,6 +360,7 @@
             <header>
                 <h2 id="detailTitle">Detalle</h2>
                 <span class="badge detail-stage-badge" id="detailStageBadge">—</span>
+                <button type="button" class="modal-close" data-close="modalOpportunityDetail" aria-label="Cerrar">×</button>
             </header>
             <div class="body opp-detail-body">
                 <div id="detailContent"></div>
